@@ -7,6 +7,6 @@ project ("chip8")
 set(SRC "./src")
 
 # Add source to this project's executable.
-add_executable (chip8 "${SRC}/chip8.cpp" "${SRC}/chip8.h")
+add_executable (chip8  "src/main.cpp" "src/chip8.h")
 
 # TODO: Add tests and install targets if needed.

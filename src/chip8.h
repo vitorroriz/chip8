@@ -1,8 +1,35 @@
-﻿// chip8.h : Include file for standard system include files,
-// or project specific include files.
-
 #pragma once
 
-#include <iostream>
+const int MEMORY_SIZE = 4096; //Size (bytes) of main memory
+const int N_GEN_PURPOSE_REGISTERS = 16; //Number of general purpose registers
+const int STACK_SIZE = 16; // Size of the stack in words of 16 bits. Each word is used to store an address.
 
-// TODO: Reference additional headers your program requires here.
+
+class Chip8
+{
+public:
+	Chip8();
+	~Chip8();
+
+private:
+	uint8_t memory[MEMORY_SIZE]; // Main memory
+
+	//Registers
+	uint16_t _reg_pc; //program counter
+	uint16_t _reg_i; //register commonly used to store addresses
+	uint8_t _reg_v[N_GEN_PURPOSE_REGISTERS]; //General purpose registers Vx (V0, V1, ...V9, VA, ..VF)
+	uint8_t _reg_sp; //Stack pointer
+	uint8_t _reg_delay;
+	uint8_t _reg_timer;
+
+	uint16_t stack[STACK_SIZE]; //stack is 16x16 bits, it can store 16 addresses. Note that an address is only 12 bits.
+
+};
+
+Chip8::Chip8()
+{
+}
+
+Chip8::~Chip8()
+{
+}
