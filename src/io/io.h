@@ -6,7 +6,7 @@
 class IO : public olc::PixelGameEngine
 {
 public:
-	IO();
+	IO(int display_height, int display_width);
 	~IO();
 
 	bool OnUserCreate() override;

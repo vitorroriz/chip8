@@ -11,10 +11,10 @@ bool IO::OnUserUpdate(float elpasedTime)
 	return true;
 }
 
-IO::IO()
+IO::IO(int displayHeight, int displayWidth)
 {
 	std::cout << "IO created" << std::endl;
-	Construct(256, 240, 4, 4);
+	Construct(displayWidth, displayHeight, 8, 8);
 	Start();
 }
 
