@@ -1,5 +1,5 @@
 # chip8
-A Chip-8 emulator
+A Chip-8 emulator (This is a work in progress)
 
 My goals is to develop my first emulator to get experience and maybe one day develop a game boy emulator. More experienced people usually recommend starting by the Chip8, since it is quite simple and has a short instruction set, so that's what I did.
 
