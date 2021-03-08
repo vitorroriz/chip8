@@ -42,7 +42,6 @@ private:
 
 Chip8::Chip8() : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay(0), _reg_timer(0), io(new IO(DISPLAY_HEIGHT, DISPLAY_WIDTH))
 {
-	std::cout << "helloooooooooooo" << std::endl;
 	std::memset(_memory, 0, sizeof _memory);
 	std::memset(_reg_v, 0, sizeof _reg_v);
 	std::memset(_stack, 0, sizeof _stack);
