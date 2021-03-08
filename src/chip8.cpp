@@ -7,7 +7,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 	const uint8_t opcodeNibble3 = (opcode & 0xF000) >> 12;
 	const uint8_t opcodeNibble2 = (opcode & 0x0F00) >> 8;
 	const uint8_t opcodeNibble1 = (opcode & 0x00F0) >> 4;
-	const uint8_t opcodeNibble0 = (opcode & 0xF00F);
+	const uint8_t opcodeNibble0 = (opcode & 0x000F);
 
 	_reg_pc += 2;
 
