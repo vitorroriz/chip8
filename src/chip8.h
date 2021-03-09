@@ -30,6 +30,7 @@ private:
 	uint8_t _reg_sp; //Stack pointer
 	uint8_t _reg_delay;
 	uint8_t _reg_timer;
+	uint8_t _reg_vf; //used as flag by some instructions
 
 	uint16_t _stack[STACK_SIZE]; //stack is 16x16 bits, it can store 16 addresses. Note that an address is only 12 bits.
 
@@ -37,6 +38,7 @@ private:
 	IO* io;
 
 	void executeInstruction(uint16_t opCode);
+	void cycle();
 
 };
 

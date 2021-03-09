@@ -1,6 +1,10 @@
 #include "chip8.h"
 #include <cassert>
 
+void Chip8::cycle()
+{
+	executeInstruction(_memory[_reg_pc]);
+}
 
 void Chip8::executeInstruction(uint16_t opcode)
 {
@@ -65,6 +69,33 @@ void Chip8::executeInstruction(uint16_t opcode)
 		case 0x7000:
 			_reg_v[opcodeNibble2] = _reg_v[opcodeNibble2] + (opcode & 0x00FF);
 			break;
+		// 8xy_
+		case 0x8000: {
+			switch (opcodeNibble0) {
+				// 8xy0 - V[x] = V[y]
+				case 0x0:
+					_reg_v[opcodeNibble2] = _reg_v[opcodeNibble1];
+					break;
+				// 8xy1 - V[x] = V[x] or V[y]
+				case 0x1:
+					_reg_v[opcodeNibble2] |= _reg_v[opcodeNibble1];
+					break;
+				// 8xy2 - V[x] = V[x] and V[y]
+				case 0x2:
+					_reg_v[opcodeNibble2] &= _reg_v[opcodeNibble1];
+					break;
+				// 8xy3 - V[x] = V[x] xor V[y]
+				case 0x3:
+					_reg_v[opcodeNibble2] ^= _reg_v[opcodeNibble1];
+					break;
+				// 8xy4 - V[x] = V[x] + V[y], also set VF to carry
+				case 0x4:
+					uint16_t sum = _reg_v[opcodeNibble2] + _reg_v[opcodeNibble1];
+					_reg_vf = (sum & 0xF0) ? 1 : 0;
+					_reg_v[opcodeNibble2] = static_cast<uint8_t>(sum & 0xF);
+					break;
+			}
+		}
 	}
 
 }
