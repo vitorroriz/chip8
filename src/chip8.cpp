@@ -1,5 +1,6 @@
 #include "chip8.h"
 #include <cassert>
+#include <cstdlib>
 
 void Chip8::cycle()
 {
@@ -92,11 +93,12 @@ void Chip8::executeInstruction(uint16_t opcode)
 					Vx ^= Vy;
 					break;
 				// 8xy4 - V[x] = V[x] + V[y], also set VF to carry
-				case 0x4:
+				case 0x4: {
 					uint16_t sum = Vx + Vy;
 					_reg_vf = (sum & 0xF0) ? 1 : 0;
 					Vx = static_cast<uint8_t>(sum & 0xF);
 					break;
+				}
 				// 8xy5 - V[x] = V[x] - V[y], VF = not borrow (If Vx > Vy, Vf = 1, otherwise Vf = 0)
 				case 0x5:
 					if (Vx > Vy) {
@@ -134,6 +136,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 					assert(false);
 					break;
 			}
+			break;
 		}
 		//0x9xy0 - Skip next instruction if V[x] != V[y]
 		case 0x9000:
@@ -145,6 +148,18 @@ void Chip8::executeInstruction(uint16_t opcode)
 			if (Vx != Vy) {
 				incrementProgramCounter();
 			}
+			break;
+		//0xAnnn - Set register I = nnn
+		case 0xA000:
+			_reg_i = opcode & 0x0FFF;
+			break;
+		//0xBnnn Jump to location nnn + V[0] (pc = nnn + V[0])
+		case 0xB000:
+			_reg_pc = (opcode & 0x0FFF) + _reg_v[0];
+			break;
+		//0xCxkk - Vx = random (byte) AND kk
+		case 0xC000:
+			Vx = (std::rand() % 256) & (opcode & 0x00FF);
 			break;
 	}
 
