@@ -15,4 +15,5 @@ add_subdirectory(SRC)
 
 target_link_libraries(app chip8)
 
+
 # TODO: Add tests and install targets if needed.

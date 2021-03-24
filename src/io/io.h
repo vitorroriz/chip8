@@ -1,17 +1,25 @@
 #pragma once
 
-#include "olcPixelGameEngine.h"
 #include <iostream>
+#include "sdl/include/SDL2/SDL.h"
+#include <vector>
+#include <bitset>
 
-class IO : public olc::PixelGameEngine
+class IO
 {
 public:
-	IO(int display_height, int display_width);
-	~IO();
+	IO(int displayHeight, int displayWidth, int pixelSize = 12);
+	~IO(void);
 
-	bool OnUserCreate() override;
-	bool OnUserUpdate(float elpasedTime) override;
+	void handleInputEvents();
+	void clearScreen();
 
+	bool isRunning() { return running; }
 private:
+	SDL_Window* window{ nullptr };
+	SDL_Renderer* renderer{ nullptr };
+	int pixelSize{ 8 };
 
+	bool running{ true };
+	SDL_Event inputEvent;
 };

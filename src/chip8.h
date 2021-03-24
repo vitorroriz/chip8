@@ -20,6 +20,9 @@ public:
 	Chip8();
 	~Chip8();
 
+	void run();
+	void stop();
+
 private:
 	uint8_t _memory[MEMORY_SIZE]; // Main memory
 
@@ -39,17 +42,7 @@ private:
 
 	void executeInstruction(uint16_t opCode);
 	void cycle();
+	bool running{ true };
 
 };
 
-Chip8::Chip8() : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay(0), _reg_timer(0), io(new IO(DISPLAY_HEIGHT, DISPLAY_WIDTH))
-{
-	std::memset(_memory, 0, sizeof _memory);
-	std::memset(_reg_v, 0, sizeof _reg_v);
-	std::memset(_stack, 0, sizeof _stack);
-}
-
-Chip8::~Chip8()
-{
-	delete io;
-}
