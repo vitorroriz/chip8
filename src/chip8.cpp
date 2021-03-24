@@ -24,6 +24,9 @@ void Chip8::run()
 		//handle io events
 		io->handleInputEvents();
 		running = io->isRunning();
+
+		//update display
+		io->updateDisplay();
 	}
 }
 

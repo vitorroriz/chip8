@@ -9,6 +9,8 @@ class IO
 {
 public:
 	IO(int displayHeight, int displayWidth, int pixelSize = 12);
+	void updateDisplay();
+	bool initDisplay(int displayHeight, int displayWidth, int pixelSize);
 	~IO(void);
 
 	void handleInputEvents();
