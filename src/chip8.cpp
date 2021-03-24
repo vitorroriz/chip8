@@ -2,7 +2,7 @@
 #include <cassert>
 #include <cstdlib>
 
-Chip8::Chip8() : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay(0), _reg_timer(0), io(new IO(DISPLAY_HEIGHT, DISPLAY_WIDTH))
+Chip8::Chip8() : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay(0), _reg_timer(0), io(new IO<DISPLAY_HEIGHT, DISPLAY_WIDTH>())
 {
 	std::memset(_memory, 0, sizeof _memory);
 	std::memset(_reg_v, 0, sizeof _reg_v);
@@ -26,7 +26,7 @@ void Chip8::run()
 		running = io->isRunning();
 
 		//update display
-		io->updateDisplay();
+		io->displayUpdate();
 	}
 }
 
@@ -58,7 +58,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 		case 0x0000: {
 			switch (opcode) {
 				// 0x00E0 - clear the display
-				io->clearScreen();
+				io->displayClear();
 				case 0x00E0:
 					/*todo */
 					break;

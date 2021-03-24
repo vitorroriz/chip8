@@ -38,7 +38,7 @@ private:
 	uint16_t _stack[STACK_SIZE]; //stack is 16x16 bits, it can store 16 addresses. Note that an address is only 12 bits.
 
 	//IO
-	IO* io;
+	IO<DISPLAY_HEIGHT, DISPLAY_WIDTH>* io;
 
 	void executeInstruction(uint16_t opCode);
 	void cycle();
