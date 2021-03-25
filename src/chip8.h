@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstring>
 #include <iostream>
+#include <string>
 #include "io/io.h"
 
 const int MEMORY_SIZE = 4096; //Size (bytes) of main memory
@@ -17,7 +17,7 @@ const uint16_t MEMORY_START_ADDR = 0x200;
 class Chip8
 {
 public:
-	Chip8();
+	Chip8(std::string romPath);
 	~Chip8();
 
 	void run();

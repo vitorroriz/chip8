@@ -1,8 +1,9 @@
 #include "chip8.h"
 #include <cassert>
 #include <cstdlib>
+#include <fstream>
 
-Chip8::Chip8() : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay(0), _reg_timer(0), io(new IO<DISPLAY_HEIGHT, DISPLAY_WIDTH>(8))
+Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay(0), _reg_timer(0), io(new IO<DISPLAY_HEIGHT, DISPLAY_WIDTH>(8))
 {
 	std::memset(_memory, 0, sizeof _memory);
 	std::memset(_reg_v, 0, sizeof _reg_v);
@@ -24,10 +25,23 @@ Chip8::Chip8() : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay(0
 	std::memcpy(&_memory[0], sprites, 15);
 
 	//load test code into memory (I = 0, Draw 5 bytes)
+	/*
 	uint8_t code[] = {
 		0x0A, 0xA0, 0x05, 0xD0
 	};
 	std::memcpy(&_memory[MEMORY_START_ADDR], code, 4);
+	*/
+
+	//open rom file and load into memory
+	std::ifstream ifs(romPath);
+	std::string content((std::istreambuf_iterator<char>(ifs)),
+		(std::istreambuf_iterator<char>()));
+
+	for (int i = 0; i < content.size(); i += 2) {
+		_memory[MEMORY_START_ADDR + i] = content[i + 1];
+		_memory[MEMORY_START_ADDR + i + 1] = content[i];
+	}
+
 }
 
 Chip8::~Chip8()
@@ -221,6 +235,8 @@ void Chip8::executeInstruction(uint16_t opcode)
 			_reg_vf |= io->displayLoadData(opcodeNibble2, opcodeNibble1, &_memory[_reg_i], opcodeNibble0);
 			break;
 		}
+		default:
+			std::cout << "Instruction not implemented" << std::endl;
 	}
 
 	incrementProgramCounter(); // prepare for next fetch
