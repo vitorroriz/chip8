@@ -12,9 +12,6 @@ public:
 	IO(int pixelSize = 12) : displayHeight{ _displayHeight }, displayWidth{ _displayWidth }, displayPixelSize{ pixelSize }, displayMemory{ *(new std::bitset<_displayHeight* _displayWidth>()) }
 	{
 		displayInit(_displayHeight, _displayWidth, pixelSize);
-		displaySetPixel(0, 0, true);
-		displaySetPixel(63, 31, true);
-		displayClearMemory();
 	}
 
 	~IO(void)
@@ -64,6 +61,7 @@ public:
 		displayMemory.reset();
 	}
 
+
 	void displayUpdate()
 	{
 		displayClear();
@@ -100,6 +98,14 @@ public:
 	}
 
 	bool isRunning() { return running; }
+
+	void displayLoadData(int positionX, int positionY, uint8_t* data, int size)
+	{
+		for (int byte = 0; byte < size; ++byte) {
+			displayLoadByte(positionX, positionY + byte, data[byte]);
+		}
+	}
+
 private:
 	SDL_Window* window{ nullptr };
 	SDL_Renderer* renderer{ nullptr };
@@ -116,6 +122,17 @@ private:
 	{
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(renderer);
+	}
+
+	void displayLoadByte(int positionX, int positionY, uint8_t data)
+	{
+		auto wrapX = [&](int positionX) {return positionX % displayWidth; };
+		auto wrapY = [&](int positionY) {return positionY % displayHeight; };
+
+		for (int bit = 0; bit < 8; ++bit) {
+			bool value = data & (1 << bit);
+			displaySetPixel(wrapX(positionX + bit), wrapY(positionY), value);
+		}
 	}
 };
 
