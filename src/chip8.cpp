@@ -2,11 +2,32 @@
 #include <cassert>
 #include <cstdlib>
 
-Chip8::Chip8() : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay(0), _reg_timer(0), io(new IO<DISPLAY_HEIGHT, DISPLAY_WIDTH>())
+Chip8::Chip8() : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay(0), _reg_timer(0), io(new IO<DISPLAY_HEIGHT, DISPLAY_WIDTH>(8))
 {
 	std::memset(_memory, 0, sizeof _memory);
 	std::memset(_reg_v, 0, sizeof _reg_v);
 	std::memset(_stack, 0, sizeof _stack);
+
+	uint8_t sprites[] = {
+		0xF0, 0x90, 0x90, 0x90, 0xF0, // "0"
+		0x20, 0x60, 0x20, 0x20, 0x70, // "1"
+		0xF0, 0x10, 0xF0, 0x80, 0xF0, // "2"
+		0xF0, 0x10, 0xF0, 0x10, 0xF0, // "3"
+		0x90, 0x90, 0xF0, 0x10, 0x10, // "4"
+		0xF0, 0x80, 0xF0, 0x10, 0xF0, // "5"
+		0xF0, 0x80, 0xF0, 0x90, 0xF0, // "6"
+		0xF0, 0x10, 0x20, 0x40, 0x40, // "7"
+		0xF0, 0x90, 0xF0, 0x90, 0xF0, // "8"
+	};
+
+	//load sprites into cpu memory
+	std::memcpy(&_memory[0], sprites, 15);
+
+	//load test code into memory (I = 0, Draw 5 bytes)
+	uint8_t code[] = {
+		0x0A, 0xA0, 0x05, 0xD0
+	};
+	std::memcpy(&_memory[MEMORY_START_ADDR], code, 4);
 }
 
 Chip8::~Chip8()
@@ -20,6 +41,7 @@ void Chip8::run()
 	while (running) {
 
 		//cycle
+		cycle();
 
 		//handle io events
 		io->handleInputEvents();
@@ -37,7 +59,7 @@ void Chip8::stop()
 
 void Chip8::cycle()
 {
-	executeInstruction(_memory[_reg_pc]);
+	executeInstruction(uint16_t(_memory[_reg_pc] | (_memory[_reg_pc + 1] << 8)));
 }
 
 void Chip8::executeInstruction(uint16_t opcode)
@@ -51,8 +73,6 @@ void Chip8::executeInstruction(uint16_t opcode)
 	uint8_t & Vy = _reg_v[opcodeNibble1];
 
 	auto incrementProgramCounter = [&]() { _reg_pc += 2; };
-
-	incrementProgramCounter(); // prepare for next fetch
 
 	switch (opcode & 0xF000) {
 		case 0x0000: {
@@ -195,6 +215,13 @@ void Chip8::executeInstruction(uint16_t opcode)
 		case 0xC000:
 			Vx = (std::rand() % 256) & (opcode & 0x00FF);
 			break;
+		//0xDxyn - Display n-byte sprite starting at memory location I at (V[x], V[y]), set VF = collision
+		case 0xD000: {
+			_reg_vf = 0;
+			_reg_vf |= io->displayLoadData(opcodeNibble2, opcodeNibble1, &_memory[_reg_i], opcodeNibble0);
+			break;
+		}
 	}
 
+	incrementProgramCounter(); // prepare for next fetch
 }

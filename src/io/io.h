@@ -12,8 +12,10 @@ public:
 	IO(int pixelSize = 12) : displayHeight{ _displayHeight }, displayWidth{ _displayWidth }, displayPixelSize{ pixelSize }, displayMemory{ *(new std::bitset<_displayHeight* _displayWidth>()) }
 	{
 		displayInit(_displayHeight, _displayWidth, pixelSize);
+		/*
 		uint8_t data[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 		displayLoadData(60, 28, data, 8);
+		*/
 	}
 
 	~IO(void)
@@ -129,9 +131,9 @@ private:
 	{
 		bool anyBitErased{ false };
 
-		for (int bit = 0; bit < 8; ++bit) {
+		for (int bit = 7; bit > 0; --bit) {
 			bool value = data & (1 << bit);
-			anyBitErased |= displaySetPixel(wrapX(positionX + bit), wrapY(positionY), value);
+			anyBitErased |= displaySetPixel(wrapX(positionX + (7 - bit)), wrapY(positionY), value);
 		}
 
 		return anyBitErased; //returns true if any bit was erased from memory
