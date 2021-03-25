@@ -58,7 +58,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 		case 0x0000: {
 			switch (opcode) {
 				// 0x00E0 - clear the display
-				io->displayClear();
+				io->displayClearMemory();
 				case 0x00E0:
 					/*todo */
 					break;
