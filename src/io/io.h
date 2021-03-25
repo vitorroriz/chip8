@@ -12,6 +12,8 @@ public:
 	IO(int pixelSize = 12) : displayHeight{ _displayHeight }, displayWidth{ _displayWidth }, displayPixelSize{ pixelSize }, displayMemory{ *(new std::bitset<_displayHeight* _displayWidth>()) }
 	{
 		displayInit(_displayHeight, _displayWidth, pixelSize);
+		uint8_t data[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+		displayLoadData(60, 28, data, 8);
 	}
 
 	~IO(void)
@@ -79,31 +81,30 @@ public:
 		SDL_RenderPresent(renderer);
 	}
 
-	void displaySetPixel(int positionX, int positionY, bool value)
+	bool displaySetPixel(int positionX, int positionY, bool value)
 	{
-		if (positionX >= displayWidth || positionY >= displayHeight) {
-			std::cout << "Pixel position is out of range" << std::endl;
-			return;
-		}
-		displayMemory[positionY * displayWidth + positionX] = value;
+		bool oldValue = displayGetPixel(positionX, positionY);
+		displayMemory[wrapY(positionY) * displayWidth + wrapX(positionX)] = value;
+
+		return !value && oldValue; //returns true if bit was erased
 	}
 
 	bool displayGetPixel(int positionX, int positionY)
 	{
-		if (positionX >= displayWidth || positionY >= displayHeight) {
-			std::cout << "Pixel position is out of range" << std::endl;
-			return false;
-		}
-		return displayMemory[positionY * displayWidth + positionX];
+		return displayMemory[wrapY(positionY) * displayWidth + wrapX(positionX)];
 	}
 
 	bool isRunning() { return running; }
 
-	void displayLoadData(int positionX, int positionY, uint8_t* data, int size)
+	bool displayLoadData(int positionX, int positionY, uint8_t* data, int size)
 	{
+		bool anyBitErased{ false };
+
 		for (int byte = 0; byte < size; ++byte) {
-			displayLoadByte(positionX, positionY + byte, data[byte]);
+			anyBitErased |= displayLoadByte(positionX, positionY + byte, data[byte]);
 		}
+
+		return anyBitErased; //returns true if any bit was erased
 	}
 
 private:
@@ -124,15 +125,19 @@ private:
 		SDL_RenderClear(renderer);
 	}
 
-	void displayLoadByte(int positionX, int positionY, uint8_t data)
+	bool displayLoadByte(int positionX, int positionY, uint8_t data)
 	{
-		auto wrapX = [&](int positionX) {return positionX % displayWidth; };
-		auto wrapY = [&](int positionY) {return positionY % displayHeight; };
+		bool anyBitErased{ false };
 
 		for (int bit = 0; bit < 8; ++bit) {
 			bool value = data & (1 << bit);
-			displaySetPixel(wrapX(positionX + bit), wrapY(positionY), value);
+			anyBitErased |= displaySetPixel(wrapX(positionX + bit), wrapY(positionY), value);
 		}
+
+		return anyBitErased; //returns true if any bit was erased from memory
 	}
+
+	int wrapX(int positionX) {return positionX % displayWidth; };
+	int wrapY(int positionY) {return positionY % displayHeight; };
 };
 
