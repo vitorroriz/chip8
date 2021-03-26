@@ -31,8 +31,8 @@ private:
 	uint16_t _reg_i; //register commonly used to store addresses
 	uint8_t _reg_v[N_GEN_PURPOSE_REGISTERS]; //General purpose registers Vx (V0, V1, ...V9, VA, ..VF)
 	uint8_t _reg_sp; //Stack pointer
-	uint8_t _reg_delay;
-	uint8_t _reg_timer;
+	uint8_t _reg_delay_timer;
+	uint8_t _reg_sound_timer;
 	uint8_t _reg_vf; //used as flag by some instructions
 
 	uint16_t _stack[STACK_SIZE]; //stack is 16x16 bits, it can store 16 addresses. Note that an address is only 12 bits.

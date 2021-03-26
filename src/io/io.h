@@ -51,14 +51,14 @@ public:
 		}
 	}
 
-	uint8_t waitForEvent()
+	uint8_t waitForInputEvent()
 	{
 		if (SDL_WaitEvent(&inputEvent)) {
 			auto key = keyMap.find(inputEvent.key.keysym.sym);
 			if (inputEvent.type == SDL_KEYDOWN && key != keyMap.end()) {
 				return key->second;
 			}
-			return waitForEvent();
+			return waitForInputEvent();
 		}
 	}
 

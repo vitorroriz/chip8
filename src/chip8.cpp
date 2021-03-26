@@ -10,7 +10,7 @@ void invalidInstruction(uint16_t opcode)
 	assert(false);
 }
 
-Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay(0), _reg_timer(0), io(new IO<DISPLAY_HEIGHT, DISPLAY_WIDTH>(8))
+Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay_timer(0), _reg_sound_timer(0), io(new IO<DISPLAY_HEIGHT, DISPLAY_WIDTH>(8))
 {
 	std::memset(_memory, 0, sizeof _memory);
 	std::memset(_reg_v, 0, sizeof _reg_v);
@@ -29,7 +29,7 @@ Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg
 	};
 
 	//load sprites into cpu memory
-	std::memcpy(&_memory[0], sprites, 15);
+	std::memcpy(&_memory[0], sprites, sizeof sprites);
 
 	//load test code into memory (I = 0, Draw 5 bytes)
 	/*
@@ -257,24 +257,49 @@ void Chip8::executeInstruction(uint16_t opcode)
 		}
 		case 0xF000: {
 			switch (opcode & 0xFF) {
+				// 0xFx07 - Set Vx = delay timer value.
 				case 0x07:
-					Vx = _reg_delay;
+					Vx = _reg_delay_timer;
 					break;
+				// 0xFx0A - Wait for a key press, store the value of the key in Vx.
 				case 0x0A:
+					Vx = io->waitForInputEvent();
 					break;
+				// 0xFx15 - Set delay timer = Vx.
 				case 0x15:
+					_reg_delay_timer = Vx;
 					break;
+				// 0xFx18 - Set sound timer = Vx.
 				case 0x18:
+					_reg_sound_timer = Vx;
 					break;
+				// 0xFx1E - Set I = I + Vx.
 				case 0x1E:
+					_reg_i += Vx;
 					break;
+				// 0xFx29 - Set I = location of sprite for digit Vx.
 				case 0x29:
+					_reg_i = Vx * 5; // sprites (5 bytes) are stored starting from virtual addr 0 
 					break;
-				case 0x33:
+				/* 0xFx33 - The interpreter takes the decimal value of Vx, and places the hundreds digit in memory at location in I,
+							the tens digit at location I+1, and the ones digit at location I+2. */
+				case 0x33: {
+					_memory[_reg_i + 2] = Vx % 10;
+					_memory[_reg_i + 1] = (Vx / 10) % 10;
+					_memory[_reg_i]		= (Vx / 100); //we can ommit % 10, because max val (255) is smaller than 1000 
 					break;
+				}
+				// Fx55 - Store registers V0 through Vx in memory starting at location I.
 				case 0x55:
+					for (int i = 0; i <= opcodeNibble2; ++i) {
+						_memory[_reg_i + i] = _reg_v[i];
+					}
 					break;
+				// Fx65 - Read registers V0 through Vx from memory starting at location I. 
 				case 0x65:
+					for (int i = 0; i <= opcodeNibble2; ++i) {
+						_reg_v[i] = _memory[_reg_i + i];
+					}
 					break;
 				default:
 					invalidInstruction(opcode);
