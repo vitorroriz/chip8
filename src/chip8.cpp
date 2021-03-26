@@ -3,6 +3,13 @@
 #include <cstdlib>
 #include <fstream>
 
+
+void invalidInstruction(uint16_t opcode)
+{
+	std::cout << "Invalid instruction, opcode is " << std::hex << (int)opcode << std::endl;
+	assert(false);
+}
+
 Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay(0), _reg_timer(0), io(new IO<DISPLAY_HEIGHT, DISPLAY_WIDTH>(8))
 {
 	std::memset(_memory, 0, sizeof _memory);
@@ -53,13 +60,12 @@ void Chip8::run()
 {
 	//main loop
 	while (running) {
+		//handle io events
+		io->pollInputEvents();
+		running = io->isRunning();
 
 		//cycle
 		cycle();
-
-		//handle io events
-		io->handleInputEvents();
-		running = io->isRunning();
 
 		//update display
 		io->displayUpdate();
@@ -86,15 +92,14 @@ void Chip8::executeInstruction(uint16_t opcode)
 	uint8_t & Vx = _reg_v[opcodeNibble2];
 	uint8_t & Vy = _reg_v[opcodeNibble1];
 
-	auto incrementProgramCounter = [&]() { _reg_pc += 2; };
+	auto incrementProgramCounter = [&]() { _reg_pc += 2 % (MEMORY_SIZE -2); };
 
 	switch (opcode & 0xF000) {
 		case 0x0000: {
 			switch (opcode) {
 				// 0x00E0 - clear the display
-				io->displayClearMemory();
 				case 0x00E0:
-					/*todo */
+				io->displayClearMemory();
 					break;
 				// 0x00EE - return from a subroutine
 				case 0x00EE:
@@ -200,8 +205,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 					break;
 				default:
 					/* todo: create logger/assert to log invalid instruction */
-					// Invalid instruction
-					assert(false);
+					invalidInstruction(opcode);
 					break;
 			}
 			break;
@@ -209,8 +213,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 		//0x9xy0 - Skip next instruction if V[x] != V[y]
 		case 0x9000:
 			if (opcodeNibble0 !=  0) {
-				// Invalid instruction
-				assert(false);
+				invalidInstruction(opcode);
 				break;
 			}
 			if (Vx != Vy) {
@@ -235,8 +238,54 @@ void Chip8::executeInstruction(uint16_t opcode)
 			_reg_vf |= io->displayLoadData(opcodeNibble2, opcodeNibble1, &_memory[_reg_i], opcodeNibble0);
 			break;
 		}
+		//
+		case 0xE000: {
+			//0xEx9E - Skip next instruction if key with the value of Vx is pressed.
+			if ((opcode & 0xFF) == 0x9E) {
+				if (io->isKeyPressed(Vx)) {
+					incrementProgramCounter();
+				} 
+			//0xExA1 - Skip next instruction if key with the value of Vx is not pressed.
+			} else if ((opcode & 0xFF) == 0xA1) {
+				if (!io->isKeyPressed(Vx)) {
+					incrementProgramCounter();
+				} 
+			} else {
+				invalidInstruction(opcode);
+			}
+			break;
+		}
+		case 0xF000: {
+			switch (opcode & 0xFF) {
+				case 0x07:
+					Vx = _reg_delay;
+					break;
+				case 0x0A:
+					break;
+				case 0x15:
+					break;
+				case 0x18:
+					break;
+				case 0x1E:
+					break;
+				case 0x29:
+					break;
+				case 0x33:
+					break;
+				case 0x55:
+					break;
+				case 0x65:
+					break;
+				default:
+					invalidInstruction(opcode);
+					break;
+			}
+			break;
+		}
+
 		default:
-			std::cout << "Instruction not implemented" << std::endl;
+			//std::cout << "Instruction not implemented" << std::endl;
+			break;
 	}
 
 	incrementProgramCounter(); // prepare for next fetch

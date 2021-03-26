@@ -4,6 +4,12 @@
 #include "sdl/include/SDL2/SDL.h"
 #include <vector>
 #include <bitset>
+#include <unordered_map>
+
+enum class KeyState{
+	up = 0,
+	down = 1
+};
 
 template<uint32_t _displayHeight, uint32_t _displayWidth>
 class IO
@@ -24,17 +30,35 @@ public:
         SDL_Quit();
 	}
 
-	void handleInputEvents()
+	void pollInputEvents()
 	{
-		while (SDL_PollEvent(&inputEvent) != 0) {
-			std::cout << "User input event: " << inputEvent.type << std::endl;
+		while(SDL_PollEvent(&inputEvent) != 0) {
 			switch (inputEvent.type) {
 				case SDL_QUIT:
 					running = false;
 					break;
+				case SDL_KEYUP:
+				case SDL_KEYDOWN: {
+					auto key = keyMap.find(inputEvent.key.keysym.sym);
+					if (key != keyMap.end()) {
+						keys[key->second] = inputEvent.type == SDL_KEYUP ? KeyState::up : KeyState::down;
+					}
+				}
+					break;
 				default:
 					break;
 			}
+		}
+	}
+
+	uint8_t waitForEvent()
+	{
+		if (SDL_WaitEvent(&inputEvent)) {
+			auto key = keyMap.find(inputEvent.key.keysym.sym);
+			if (inputEvent.type == SDL_KEYDOWN && key != keyMap.end()) {
+				return key->second;
+			}
+			return waitForEvent();
 		}
 	}
 
@@ -96,8 +120,6 @@ public:
 		return displayMemory[wrapY(positionY) * displayWidth + wrapX(positionX)];
 	}
 
-	bool isRunning() { return running; }
-
 	bool displayLoadData(int positionX, int positionY, uint8_t* data, int size)
 	{
 		bool anyBitErased{ false };
@@ -109,6 +131,16 @@ public:
 		return anyBitErased; //returns true if any bit was erased
 	}
 
+	bool isRunning() { return running; }
+
+	bool isKeyPressed(uint8_t key)
+	{
+		if (key > 0xF) {
+			return false;
+		}
+
+		return keys[key] == KeyState::down;
+	}
 private:
 	SDL_Window* window{ nullptr };
 	SDL_Renderer* renderer{ nullptr };
@@ -141,5 +173,14 @@ private:
 
 	int wrapX(int positionX) {return positionX % displayWidth; };
 	int wrapY(int positionY) {return positionY % displayHeight; };
+	std::unordered_map<SDL_Keycode, uint8_t> keyMap = {
+		{SDLK_1, 0x0}, {SDLK_2, 0x1}, {SDLK_3, 0x2}, {SDLK_4, 0x3},
+		{SDLK_q, 0x4}, {SDLK_w, 0x5}, {SDLK_e, 0x6}, {SDLK_r, 0x7},
+		{SDLK_a, 0x8}, {SDLK_s, 0x9}, {SDLK_d, 0xA}, {SDLK_f, 0xB},
+		{SDLK_z, 0xC}, {SDLK_x, 0xD}, {SDLK_c, 0xE}, {SDLK_v, 0xF} };
+
+	KeyState keys[16] = { KeyState::down }; // all keys in 0 (KeyState.up) state
+
 };
+
 
