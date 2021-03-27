@@ -175,7 +175,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 				case 0x4: {
 					uint16_t sum = Vx + Vy;
 					_reg_vf = (sum & 0xF0) ? 1 : 0;
-					Vx = static_cast<uint8_t>(sum & 0xF);
+					Vx = static_cast<uint8_t>(sum & 0xFF);
 					break;
 				}
 				// 8xy5 - V[x] = V[x] - V[y], VF = not borrow (If Vx > Vy, Vf = 1, otherwise Vf = 0)
