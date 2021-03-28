@@ -2,8 +2,14 @@
 #include <cassert>
 #include <cstdlib>
 #include <fstream>
+#include <thread>;
 
-const double PERIOD_60HZ = (1 / static_cast<double>(60));
+const int PERIOD_60HZ_MICROSECONDS = (1000000 / static_cast<double>(60));
+const int CLOCK_FREQUENCY_HZ = 500;
+const int CLOCK_PERIOD_MICROSECONDS = 1000000 / CLOCK_FREQUENCY_HZ;
+
+const auto CHRONO_CLOCK_PERIOD_MICROSECONDS = std::chrono::microseconds(CLOCK_PERIOD_MICROSECONDS);
+const auto CHRONO_PERIOD_60HZ_MICROSECONDS = std::chrono::microseconds(PERIOD_60HZ_MICROSECONDS);
 
 void invalidInstruction(uint16_t opcode)
 {
@@ -68,7 +74,7 @@ void Chip8::run()
 	//main loop
 	while (running) {
 		//save timestamp for current clock cycle
-		systemTimeStamp = std::chrono::steady_clock::now();
+		auto systemTimeStamp = std::chrono::steady_clock::now();
 
 		//handle io events
 		io->pollInputEvents();
@@ -82,6 +88,12 @@ void Chip8::run()
 
 		//update display
 		io->displayUpdate();
+
+		std::chrono::duration<double> cpuTime = std::chrono::steady_clock::now() - systemTimeStamp;
+		std::chrono::duration<double> sleepInterval = CHRONO_CLOCK_PERIOD_MICROSECONDS - cpuTime;
+
+		//std::cout << std::chrono::duration_cast<std::chrono::microseconds>(sleepInterval).count() << " " << std::chrono::duration_cast<std::chrono::microseconds>(cpuTime).count() << std::endl;
+		std::this_thread::sleep_for(sleepInterval);
 	}
 }
 
@@ -105,7 +117,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 	uint8_t & Vx = _reg_v[opcodeNibble2];
 	uint8_t & Vy = _reg_v[opcodeNibble1];
 
-	auto incrementProgramCounter = [&]() { _reg_pc += 2 % (MEMORY_SIZE -2); };
+	auto incrementProgramCounter = [&]() { _reg_pc += 2; };
 
 	// prepare for next fetch
 	incrementProgramCounter(); 
@@ -119,7 +131,8 @@ void Chip8::executeInstruction(uint16_t opcode)
 					break;
 				// 0x00EE - return from a subroutine
 				case 0x00EE:
-					_reg_pc = _stack[_reg_sp--];
+					_reg_pc = _stack[_reg_sp];
+					--_reg_sp;
 					break;
 				default: // 0x0nnn (This instruction can be ignored)
 					break;
@@ -188,10 +201,10 @@ void Chip8::executeInstruction(uint16_t opcode)
 					Vx = static_cast<uint8_t>(sum & 0xFF);
 					break;
 				}
-				// 8xy5 - V[x] = V[x] - V[y], VF = not borrow (If Vx > Vy, Vf = 1, otherwise Vf = 0)
+				// 8xy5 - V[x] = V[x] - V[y], VF = not borrow (If Vx >= Vy, Vf = 1, otherwise Vf = 0)
 				case 0x5:
+					Vx -= Vy;
 					_reg_vf = Vx >= Vy ? 1 : 0;
-						Vx -= Vy;
 					break;
 				// 8xy6 - Vx = SHR 1 (Shift Logical Right of Vx by 1). If the least-significant bit of Vx is 1, Vf = 1, otherwise Vf = 0.
 				case 0x6:
@@ -199,7 +212,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 					Vx <<= 1;
 					Vx >>= 1;
 					break;
-				// 8xy7 - V[x] = V[y] - V[x], VF = not borrow (If Vy > Vx, Vf = 1, otherwise Vf = 0)
+				// 8xy7 - V[x] = V[y] - V[x], VF = not borrow (If Vy >= Vx, Vf = 1, otherwise Vf = 0)
 				case 0x7:
 					_reg_vf = Vy >= Vx ? 1 : 0;
 					Vx = Vy - Vx;
@@ -326,7 +339,7 @@ void Chip8::updateTimers()
 {
 	if (_reg_delay_timer) {
 		std::chrono::duration<double> elapsedTime = systemTimeStamp - delayTimeStamp;
-		if (elapsedTime.count() >= PERIOD_60HZ) {
+		if (elapsedTime >= CHRONO_PERIOD_60HZ_MICROSECONDS) {
 			//std::cout << (int)_reg_delay_timer << " : " << elapsedTime.count() << std::endl;
 			delayTimeStamp = systemTimeStamp;
 			--_reg_delay_timer;
@@ -335,7 +348,7 @@ void Chip8::updateTimers()
 
 	if (_reg_sound_timer) {
 		std::chrono::duration<double> elapsedTime = systemTimeStamp - soundTimeStamp;
-		if (elapsedTime.count() >= PERIOD_60HZ) {
+		if (elapsedTime >= CHRONO_PERIOD_60HZ_MICROSECONDS) {
 			soundTimeStamp = systemTimeStamp;
 			--_reg_sound_timer;
 		}

@@ -5,6 +5,7 @@
 #include <vector>
 #include <bitset>
 #include <unordered_map>
+#include <cassert>
 
 enum class KeyState{
 	up = 0,
@@ -17,7 +18,9 @@ class IO
 public:
 	IO(int pixelSize = 12) : displayHeight{ _displayHeight }, displayWidth{ _displayWidth }, displayPixelSize{ pixelSize }, displayMemory{ *(new std::bitset<_displayHeight* _displayWidth>()) }
 	{
-		displayInit(_displayHeight, _displayWidth, pixelSize);
+		if (!displayInit(_displayHeight, _displayWidth, pixelSize)) {
+			running = false;
+		}
 		/*
 		uint8_t data[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 		displayLoadData(60, 28, data, 8);
@@ -27,6 +30,9 @@ public:
 	~IO(void)
 	{
         SDL_DestroyWindow(window);
+		SDL_DestroyRenderer(renderer);
+		window = nullptr;
+		renderer = nullptr;
         SDL_Quit();
 	}
 
@@ -64,7 +70,11 @@ public:
 
 	bool displayInit(int displayHeight, int displayWidth, int pixelSize)
 	{
-		SDL_Init(SDL_INIT_VIDEO);
+		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+
+			std::cout << "Could not initialize SDL. SDL Error = " << SDL_GetError() << std::endl;
+			return false;
+		}
 		window = SDL_CreateWindow("chip8 emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, pixelSize * displayWidth, pixelSize * displayHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 		if (window == nullptr) {
 			std::cout << "Could not create SDL Window" << std::endl;
@@ -155,6 +165,12 @@ private:
 
 	void displayClear()
 	{
+		if (!renderer) {
+			std::cout << "Invalid ptr to renderer" << std::endl;
+			assert(false);
+			return;
+		}
+
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(renderer);
 	}
