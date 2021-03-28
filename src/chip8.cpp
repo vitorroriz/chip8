@@ -174,7 +174,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 				// 8xy4 - V[x] = V[x] + V[y], also set VF to carry
 				case 0x4: {
 					uint16_t sum = Vx + Vy;
-					_reg_vf = (sum & 0xF0) ? 1 : 0;
+					_reg_vf = (sum & 0xF00) ? 1 : 0;
 					Vx = static_cast<uint8_t>(sum & 0xFF);
 					break;
 				}

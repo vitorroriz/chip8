@@ -163,7 +163,7 @@ private:
 	{
 		bool anyBitErased{ false };
 
-		for (int bit = 7; bit > 0; --bit) {
+		for (int bit = 7; bit >= 0; --bit) {
 			bool value = data & (1 << bit);
 			anyBitErased |= displaySetPixel(wrapX(positionX + (7 - bit)), wrapY(positionY), value);
 		}
