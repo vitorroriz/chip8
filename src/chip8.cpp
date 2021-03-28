@@ -100,6 +100,9 @@ void Chip8::executeInstruction(uint16_t opcode)
 
 	auto incrementProgramCounter = [&]() { _reg_pc += 2 % (MEMORY_SIZE -2); };
 
+	// prepare for next fetch
+	incrementProgramCounter(); 
+
 	switch (opcode & 0xF000) {
 		case 0x0000: {
 			switch (opcode) {
@@ -120,7 +123,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 		case 0x1000:
 			_reg_pc = opcode & 0x0FFF;
 			break;
-		// 2nnn - Call subroutine at address nnn after saving placing current PC into the stack
+		// 2nnn - Call subroutine at address nnn after saving current PC into the stack
 		case 0x2000:
 			++_reg_sp;
 			_stack[_reg_sp] = _reg_pc;
@@ -238,10 +241,10 @@ void Chip8::executeInstruction(uint16_t opcode)
 		case 0xC000:
 			Vx = (std::rand() % 256) & (opcode & 0x00FF);
 			break;
-		//0xDxyn - Display n-byte sprite starting at memory location I at (V[x], V[y]), set VF = collision
+		//0xDxyn - Draw n-byte sprite starting at memory location I at (V[x], V[y]), set VF = collision
 		case 0xD000: {
 			_reg_vf = 0;
-			_reg_vf |= io->displayLoadData(opcodeNibble2, opcodeNibble1, &_memory[_reg_i], opcodeNibble0);
+			_reg_vf |= io->displayLoadData(Vx, Vy, &_memory[_reg_i], opcodeNibble0);
 			break;
 		}
 		//
@@ -318,6 +321,4 @@ void Chip8::executeInstruction(uint16_t opcode)
 			//std::cout << "Instruction not implemented" << std::endl;
 			break;
 	}
-
-	incrementProgramCounter(); // prepare for next fetch
 }
