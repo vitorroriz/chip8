@@ -183,13 +183,8 @@ void Chip8::executeInstruction(uint16_t opcode)
 				}
 				// 8xy5 - V[x] = V[x] - V[y], VF = not borrow (If Vx > Vy, Vf = 1, otherwise Vf = 0)
 				case 0x5:
-					if (Vx > Vy) {
-						_reg_vf = 1;
+					_reg_vf = Vx >= Vy ? 1 : 0;
 						Vx -= Vy;
-					} else {
-						_reg_vf = 0;
-						Vx = Vy - Vx;
-					}
 					break;
 				// 8xy6 - Vx = SHR 1 (Shift Logical Right of Vx by 1). If the least-significant bit of Vx is 1, Vf = 1, otherwise Vf = 0.
 				case 0x6:
@@ -199,13 +194,8 @@ void Chip8::executeInstruction(uint16_t opcode)
 					break;
 				// 8xy7 - V[x] = V[y] - V[x], VF = not borrow (If Vy > Vx, Vf = 1, otherwise Vf = 0)
 				case 0x7:
-					if (Vy > Vx) {
-						_reg_vf = 1;
-						Vx = Vy - Vx;
-					} else {
-						_reg_vf = 0;
-						Vx = Vx - Vy;
-					}
+					_reg_vf = Vy >= Vx ? 1 : 0;
+					Vx = Vy - Vx;
 					break;
 				// 8xyE - Vx = SHL 1 (Shift Logical Left of Vx by 1). If the most-significant bit of Vx is 1, Vf = 1, otherwise Vf = 0.
 				case 0xE:
