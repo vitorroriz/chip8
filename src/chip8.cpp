@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <fstream>
 
+const double PERIOD_60HZ = (1 / static_cast<double>(60));
 
 void invalidInstruction(uint16_t opcode)
 {
@@ -66,9 +67,15 @@ void Chip8::run()
 {
 	//main loop
 	while (running) {
+		//save timestamp for current clock cycle
+		systemTimeStamp = std::chrono::steady_clock::now();
+
 		//handle io events
 		io->pollInputEvents();
 		running = io->isRunning();
+
+		//handle timers
+		updateTimers();
 
 		//cycle
 		cycle();
@@ -267,10 +274,12 @@ void Chip8::executeInstruction(uint16_t opcode)
 				// 0xFx15 - Set delay timer = Vx.
 				case 0x15:
 					_reg_delay_timer = Vx;
+					delayTimeStamp = systemTimeStamp;
 					break;
 				// 0xFx18 - Set sound timer = Vx.
 				case 0x18:
 					_reg_sound_timer = Vx;
+					soundTimeStamp = systemTimeStamp;
 					break;
 				// 0xFx1E - Set I = I + Vx.
 				case 0x1E:
@@ -311,4 +320,25 @@ void Chip8::executeInstruction(uint16_t opcode)
 			//std::cout << "Instruction not implemented" << std::endl;
 			break;
 	}
+}
+
+void Chip8::updateTimers()
+{
+	if (_reg_delay_timer) {
+		std::chrono::duration<double> elapsedTime = systemTimeStamp - delayTimeStamp;
+		if (elapsedTime.count() >= PERIOD_60HZ) {
+			//std::cout << (int)_reg_delay_timer << " : " << elapsedTime.count() << std::endl;
+			delayTimeStamp = systemTimeStamp;
+			--_reg_delay_timer;
+		}
+	}
+
+	if (_reg_sound_timer) {
+		std::chrono::duration<double> elapsedTime = systemTimeStamp - soundTimeStamp;
+		if (elapsedTime.count() >= PERIOD_60HZ) {
+			soundTimeStamp = systemTimeStamp;
+			--_reg_sound_timer;
+		}
+	}
+
 }

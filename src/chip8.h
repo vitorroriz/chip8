@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include "io/io.h"
+#include <chrono>
 
 const int MEMORY_SIZE = 4096; //Size (bytes) of main memory
 const int N_GEN_PURPOSE_REGISTERS = 16; //Number of general purpose registers
@@ -42,7 +43,13 @@ private:
 
 	void executeInstruction(uint16_t opCode);
 	void cycle();
+	void updateTimers();
 	bool running{ true };
+
+	std::chrono::steady_clock::time_point systemTimeStamp;
+	std::chrono::steady_clock::time_point delayTimeStamp;
+	std::chrono::steady_clock::time_point soundTimeStamp;
+
 
 };
 
