@@ -10,7 +10,7 @@ void invalidInstruction(uint16_t opcode)
 	assert(false);
 }
 
-Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay_timer(0), _reg_sound_timer(0), io(new IO<DISPLAY_HEIGHT, DISPLAY_WIDTH>(8))
+Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay_timer(0), _reg_sound_timer(0), io(new IO<DISPLAY_HEIGHT, DISPLAY_WIDTH>(12))
 {
 	std::memset(_memory, 0, sizeof _memory);
 	std::memset(_reg_v, 0, sizeof _reg_v);
@@ -177,7 +177,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 				// 8xy4 - V[x] = V[x] + V[y], also set VF to carry
 				case 0x4: {
 					uint16_t sum = Vx + Vy;
-					_reg_vf = (sum & 0xF00) ? 1 : 0;
+					_reg_vf = sum > 0xFF;
 					Vx = static_cast<uint8_t>(sum & 0xFF);
 					break;
 				}
