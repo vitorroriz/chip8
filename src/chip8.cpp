@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <thread>;
 
-#define DEBUG 1
+#define DEBUG 0
 
 const int PERIOD_60HZ_MICROSECONDS = (1000000 / static_cast<double>(60));
 const int CLOCK_FREQUENCY_HZ = 500;
@@ -85,7 +85,7 @@ void Chip8::run()
 	//main loop
 	while (running) {
 		//save timestamp for current clock cycle
-		auto systemTimeStamp = std::chrono::steady_clock::now();
+		systemTimeStamp = std::chrono::steady_clock::now();
 
 		//handle io events
 		io->pollInputEvents();
@@ -134,6 +134,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 	for (auto i = 0; i <= 0xF; ++i) {
 		logFile << "V[" << i << "]: " << std::hex << (int)_reg_v[i] << "  ";
 	}
+		logFile << std::endl << "dt: " << std::hex << (int)_reg_delay_timer << std::endl;
 #endif
 
 	auto incrementProgramCounter = [&]() { _reg_pc += 2; };
