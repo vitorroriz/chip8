@@ -1,8 +1,9 @@
 #include "chip8.h"
 #include <cassert>
 #include <cstdlib>
-#include <fstream>
 #include <thread>;
+
+#define DEBUG 0
 
 const int PERIOD_60HZ_MICROSECONDS = (1000000 / static_cast<double>(60));
 const int CLOCK_FREQUENCY_HZ = 500;
@@ -57,6 +58,10 @@ Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg
 	std::string content((std::istreambuf_iterator<char>(ifs)),
 		(std::istreambuf_iterator<char>()));
 
+#if DEBUG
+	logFile.open("log.txt");
+#endif
+
 	for (int i = 0; i < content.size(); i += 2) {
 		_memory[MEMORY_START_ADDR + i] = content[i + 1];
 		_memory[MEMORY_START_ADDR + i + 1] = content[i];
@@ -66,6 +71,12 @@ Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg
 
 Chip8::~Chip8()
 {
+	
+#if DEBUG
+	if (logFile.is_open()) {
+		logFile.close();
+	}
+#endif
 	delete io;
 }
 
@@ -116,6 +127,14 @@ void Chip8::executeInstruction(uint16_t opcode)
 
 	uint8_t & Vx = _reg_v[opcodeNibble2];
 	uint8_t & Vy = _reg_v[opcodeNibble1];
+	uint8_t & Vf = _reg_v[0xf];
+
+#if DEBUG
+	logFile << std::endl << "pc: " << std::hex << (int) _reg_pc << " opcode: " <<  (int)opcode << std::endl;
+	for (auto i = 0; i <= 0xF; ++i) {
+		logFile << "V[" << i << "]: " << std::hex << (int)_reg_v[i] << "  ";
+	}
+#endif
 
 	auto incrementProgramCounter = [&]() { _reg_pc += 2; };
 
@@ -197,28 +216,28 @@ void Chip8::executeInstruction(uint16_t opcode)
 				// 8xy4 - V[x] = V[x] + V[y], also set VF to carry
 				case 0x4: {
 					uint16_t sum = Vx + Vy;
-					_reg_vf = sum > 0xFF;
+					Vf = sum > 0xFF;
 					Vx = static_cast<uint8_t>(sum & 0xFF);
 					break;
 				}
 				// 8xy5 - V[x] = V[x] - V[y], VF = not borrow (If Vx >= Vy, Vf = 1, otherwise Vf = 0)
 				case 0x5:
 					Vx -= Vy;
-					_reg_vf = Vx >= Vy ? 1 : 0;
+					Vf = Vx >= Vy ? 1 : 0;
 					break;
 				// 8xy6 - Vx = SHR 1 (Shift Logical Right of Vx by 1). If the least-significant bit of Vx is 1, Vf = 1, otherwise Vf = 0.
 				case 0x6:
-					_reg_vf = Vx & 1;
+					Vf = Vx & 1;
 					Vx >>= 1;
 					break;
 				// 8xy7 - V[x] = V[y] - V[x], VF = not borrow (If Vy >= Vx, Vf = 1, otherwise Vf = 0)
 				case 0x7:
-					_reg_vf = Vy >= Vx ? 1 : 0;
+					Vf = Vy >= Vx ? 1 : 0;
 					Vx = Vy - Vx;
 					break;
 				// 8xyE - Vx = SHL 1 (Shift Logical Left of Vx by 1). If the most-significant bit of Vx is 1, Vf = 1, otherwise Vf = 0.
 				case 0xE:
-					_reg_vf = Vx & (1 << 7);
+					Vf = Vx & (1 << 7);
 					Vx <<= 1;
 					break;
 				default:
@@ -252,8 +271,8 @@ void Chip8::executeInstruction(uint16_t opcode)
 			break;
 		//0xDxyn - Draw n-byte sprite starting at memory location I at (V[x], V[y]), set VF = collision
 		case 0xD000: {
-			_reg_vf = 0;
-			_reg_vf = io->displayLoadData(Vx, Vy, &_memory[_reg_i], opcodeNibble0);
+			Vf = 0;
+			Vf = io->displayLoadData(Vx, Vy, &_memory[_reg_i], opcodeNibble0);
 			break;
 		}
 		//

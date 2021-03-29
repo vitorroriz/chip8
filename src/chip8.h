@@ -4,6 +4,7 @@
 #include <string>
 #include "io/io.h"
 #include <chrono>
+#include <fstream>
 
 const int MEMORY_SIZE = 4096; //Size (bytes) of main memory
 const int N_GEN_PURPOSE_REGISTERS = 16; //Number of general purpose registers
@@ -34,7 +35,6 @@ private:
 	uint8_t _reg_sp; //Stack pointer
 	uint8_t _reg_delay_timer;
 	uint8_t _reg_sound_timer;
-	uint8_t _reg_vf; //used as flag by some instructions
 
 	uint16_t _stack[STACK_SIZE]; //stack is 16x16 bits, it can store 16 addresses. Note that an address is only 12 bits.
 
@@ -49,6 +49,8 @@ private:
 	std::chrono::steady_clock::time_point systemTimeStamp;
 	std::chrono::steady_clock::time_point delayTimeStamp;
 	std::chrono::steady_clock::time_point soundTimeStamp;
+
+	std::ofstream logFile;
 
 
 };
