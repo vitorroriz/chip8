@@ -237,7 +237,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 					break;
 				// 8xyE - Vx = SHL 1 (Shift Logical Left of Vx by 1). If the most-significant bit of Vx is 1, Vf = 1, otherwise Vf = 0.
 				case 0xE:
-					Vf = Vx & (1 << 7);
+					Vf = Vx & (1 << 7) ? 1 : 0;
 					Vx <<= 1;
 					break;
 				default:
