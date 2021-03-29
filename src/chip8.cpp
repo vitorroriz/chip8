@@ -173,7 +173,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 			break;
 		// 7xkk - Loads the value V[x] + kk into V[x]
 		case 0x7000:
-			Vx = Vx + (opcode & 0x00FF);
+			Vx += (opcode & 0x00FF);
 			break;
 		// 8xy_
 		case 0x8000: {
