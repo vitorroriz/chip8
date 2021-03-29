@@ -209,7 +209,6 @@ void Chip8::executeInstruction(uint16_t opcode)
 				// 8xy6 - Vx = SHR 1 (Shift Logical Right of Vx by 1). If the least-significant bit of Vx is 1, Vf = 1, otherwise Vf = 0.
 				case 0x6:
 					_reg_vf = Vx & 1;
-					Vx <<= 1;
 					Vx >>= 1;
 					break;
 				// 8xy7 - V[x] = V[y] - V[x], VF = not borrow (If Vy >= Vx, Vf = 1, otherwise Vf = 0)
