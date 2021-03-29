@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <thread>;
 
-#define DEBUG 0
+#define DEBUG 1
 
 const int PERIOD_60HZ_MICROSECONDS = (1000000 / static_cast<double>(60));
 const int CLOCK_FREQUENCY_HZ = 500;
@@ -222,8 +222,8 @@ void Chip8::executeInstruction(uint16_t opcode)
 				}
 				// 8xy5 - V[x] = V[x] - V[y], VF = not borrow (If Vx >= Vy, Vf = 1, otherwise Vf = 0)
 				case 0x5:
-					Vx -= Vy;
 					Vf = Vx >= Vy ? 1 : 0;
+					Vx -= Vy;
 					break;
 				// 8xy6 - Vx = SHR 1 (Shift Logical Right of Vx by 1). If the least-significant bit of Vx is 1, Vf = 1, otherwise Vf = 0.
 				case 0x6:
