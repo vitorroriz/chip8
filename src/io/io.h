@@ -181,7 +181,7 @@ private:
 
 		for (int bit = 7; bit >= 0; --bit) {
 			bool value = data & (1 << bit);
-			anyBitErased |= displaySetPixel(wrapX(positionX + (7 - bit)), wrapY(positionY), value);
+			anyBitErased |= displaySetPixel(positionX + 7 - bit, positionY, value);
 		}
 
 		return anyBitErased; //returns true if any bit was erased from memory

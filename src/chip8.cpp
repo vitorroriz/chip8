@@ -253,7 +253,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 		//0xDxyn - Draw n-byte sprite starting at memory location I at (V[x], V[y]), set VF = collision
 		case 0xD000: {
 			_reg_vf = 0;
-			_reg_vf |= io->displayLoadData(Vx, Vy, &_memory[_reg_i], opcodeNibble0);
+			_reg_vf = io->displayLoadData(Vx, Vy, &_memory[_reg_i], opcodeNibble0);
 			break;
 		}
 		//
