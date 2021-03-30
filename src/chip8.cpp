@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <thread>;
 
-#define DEBUG 0
+#define DEBUG 1
 
 const int PERIOD_60HZ_MICROSECONDS = (1000000 / static_cast<double>(60));
 const int CLOCK_FREQUENCY_HZ = 500;
@@ -62,9 +62,8 @@ Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg
 	logFile.open("log.txt");
 #endif
 
-	for (int i = 0; i < content.size(); i += 2) {
-		_memory[MEMORY_START_ADDR + i] = content[i + 1];
-		_memory[MEMORY_START_ADDR + i + 1] = content[i];
+	for (int i = 0; i < content.size(); i ++) {
+		_memory[MEMORY_START_ADDR + i] = content[i];
 	}
 
 }
@@ -115,7 +114,7 @@ void Chip8::stop()
 
 void Chip8::cycle()
 {
-	executeInstruction(uint16_t(_memory[_reg_pc] | (_memory[_reg_pc + 1] << 8)));
+	executeInstruction(uint16_t(_memory[_reg_pc + 1] | (_memory[_reg_pc] << 8)));
 }
 
 void Chip8::executeInstruction(uint16_t opcode)
@@ -134,7 +133,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 	for (auto i = 0; i <= 0xF; ++i) {
 		logFile << "V[" << i << "]: " << std::hex << (int)_reg_v[i] << "  ";
 	}
-		logFile << std::endl << "dt: " << std::hex << (int)_reg_delay_timer << std::endl;
+		logFile << std::endl << std::hex << "I: " << _reg_i << " dt: "  << (int)_reg_delay_timer << std::endl;
 #endif
 
 	auto incrementProgramCounter = [&]() { _reg_pc += 2; };
@@ -349,7 +348,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 		}
 
 		default:
-			//std::cout << "Instruction not implemented" << std::endl;
+			invalidInstruction();
 			break;
 	}
 }
