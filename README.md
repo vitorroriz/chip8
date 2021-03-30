@@ -14,6 +14,8 @@ http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#0.0
 
 
 SDL library references:
+
+
 https://wiki.libsdl.org/Installation
 
 http://lazyfoo.net/tutorials/SDL/01_hello_SDL/windows/mingw/index.php
