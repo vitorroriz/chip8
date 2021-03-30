@@ -348,7 +348,7 @@ void Chip8::executeInstruction(uint16_t opcode)
 		}
 
 		default:
-			invalidInstruction();
+			invalidInstruction(opcode);
 			break;
 	}
 }
