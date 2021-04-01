@@ -111,6 +111,13 @@ private:
 	};
 	const std::string FONT_I = {
 	"1       "
+	"1       "
+	"1       "
+	"1       "
+	"1       "
+	};
+	const std::string FONT_i = {
+	"1       "
 	"        "
 	"1       "
 	"1       "
@@ -123,6 +130,13 @@ private:
 	"  1     "
 	"  1     "
 	};
+	const std::string FONT_t = {
+	"        "
+	" 1      "
+	"111     "
+	" 1      "
+	" 1      "
+	};
 	const std::string FONT_O = {
 	" 1111   "
 	"1    1  "
@@ -130,12 +144,26 @@ private:
 	"1    1  "
 	" 1111   "
 	};
+	const std::string FONT_o = {
+	"        "
+	" 111    "
+	"1   1   "
+	"1   1   "
+	" 111    "
+	};
 	const std::string FONT_R = {
 	"1111    "
 	"1  1    "
 	"1 1     "
 	"1  1    "
 	"1   1   "
+	};
+	const std::string FONT_r = {
+	"        "
+	"111     "
+	"1       "
+	"1       "
+	"1       "
 	};
 }
 
