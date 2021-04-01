@@ -88,26 +88,47 @@ private:
 	"1  1    "
 	"1111    "
 	};
-	const std::string FONT_e = {
+	const std::string FONT_E = {
 	"11111   "
 	"1       "
 	"11111   "
 	"1       "
 	"11111   "
 	};
-	const std::string FONT_E = {
+	const std::string FONT_e = {
 	" 111    "
 	"1   1   "
 	"11111   "
 	"1       "
 	"1111    "
 	};
-	const std::string FONT_V = {
+	const std::string FONT_F = {
+	"11111   "
+	"1       "
+	"11111   "
+	"1       "
+	"1       "
+	};
+	const std::string FONT_f = {
+	" 1111   "
+	"1       "
+	"1111    "
+	"1       "
+	"1       "
+	};
+	const std::string FONT_G = {
+	" 1111   "
+	"1       "
+	"1  111  "
 	"1   1   "
-	"1   1   "
-	" 1 1    "
-	" 1 1    "
-	"  1     "
+	" 111    "
+	};
+	const std::string FONT_H = {
+	"1  1    "
+	"1  1    "
+	"1111    "
+	"1  1    "
+	"1  1    "
 	};
 	const std::string FONT_I = {
 	"1       "
@@ -123,19 +144,19 @@ private:
 	"1       "
 	"1       "
 	};
-	const std::string FONT_T = {
-	"11111   "
+	const std::string FONT_J = {
+	" 111    "
 	"  1     "
 	"  1     "
-	"  1     "
-	"  1     "
-	};
-	const std::string FONT_t = {
-	"        "
-	" 1      "
+	"1 1     "
 	"111     "
-	" 1      "
-	" 1      "
+	};
+	const std::string FONT_K = {
+	"1  1    "
+	"1 1     "
+	"11      "
+	"1 1     "
+	"1  1    "
 	};
 	const std::string FONT_O = {
 	" 1111   "
@@ -151,6 +172,13 @@ private:
 	"1   1   "
 	" 111    "
 	};
+	const std::string FONT_P = {
+	"1111    "
+	"1  1    "
+	"111     "
+	"1       "
+	"1       "
+	};
 	const std::string FONT_R = {
 	"1111    "
 	"1  1    "
@@ -164,6 +192,41 @@ private:
 	"1       "
 	"1       "
 	"1       "
+	};
+	const std::string FONT_S = {
+	" 111    "
+	"1       "
+	" 11     "
+	"   1    "
+	"1111    "
+	};
+	const std::string FONT_T = {
+	"11111   "
+	"  1     "
+	"  1     "
+	"  1     "
+	"  1     "
+	};
+	const std::string FONT_t = {
+	"        "
+	" 1      "
+	"111     "
+	" 1      "
+	" 1      "
+	};
+	const std::string FONT_V = {
+	"1   1   "
+	"1   1   "
+	" 1 1    "
+	" 1 1    "
+	"  1     "
+	};
+	const std::string FONT_Y = {
+	"1   1   "
+	"1   1   "
+	" 111    "
+	"  1     "
+	"  1     "
 	};
 }
 

@@ -8,6 +8,10 @@ While this is still WIP, it can pass the BC_test from BestCoder [bestcoder@ymail
 ![](https://github.com/vitorroriz/chip8/blob/main/bc_test.gif)
 
 
+It can also run Space Invaders (David Winter), although gameplay still has bugs:
+
+![](https://github.com/vitorroriz/chip8/blob/main/spaceinvaders.gif)
+
 Chip-8 reference:
 
 http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#0.0
