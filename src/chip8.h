@@ -11,10 +11,7 @@ const int N_GEN_PURPOSE_REGISTERS = 16; //Number of general purpose registers
 const int STACK_SIZE = 16; // Size of the stack in words of 16 bits. Each word is used to store an address.
 const int DISPLAY_HEIGHT = 32; // Height of display in pixels
 const int DISPLAY_WIDTH = 64; // Width of display in pixels
-
-
-const uint16_t MEMORY_START_ADDR = 0x200;
-
+const uint16_t MEMORY_START_ADDR = 0x200; // Region before that is reserved for font sprites, for example.
 
 class Chip8
 {
@@ -46,9 +43,12 @@ private:
 	void updateTimers();
 	bool running{ true };
 
+	std::chrono::steady_clock::time_point initialSystemTimeStamp;
 	std::chrono::steady_clock::time_point systemTimeStamp;
 	std::chrono::steady_clock::time_point delayTimeStamp;
 	std::chrono::steady_clock::time_point soundTimeStamp;
+	std::chrono::duration<double> cpuTime;
+	std::chrono::duration<double> sleepInterval;
 
 	std::ofstream logFile;
 

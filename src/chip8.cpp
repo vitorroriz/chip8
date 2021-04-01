@@ -1,7 +1,7 @@
 #include "chip8.h"
 #include <cassert>
 #include <cstdlib>
-#include <thread>;
+#include <thread>
 
 #define DEBUG 1
 
@@ -16,6 +16,12 @@ void invalidInstruction(uint16_t opcode)
 {
 	std::cout << "Invalid instruction, opcode is " << std::hex << (int)opcode << std::endl;
 	assert(false);
+}
+
+template<class T>
+size_t durationCount(const std::chrono::duration<double> & dur)
+{
+	return std::chrono::duration_cast<T>(dur).count();
 }
 
 Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg_i(0), _reg_delay_timer(0), _reg_sound_timer(0), io(new IO<DISPLAY_HEIGHT, DISPLAY_WIDTH>(12))
@@ -81,7 +87,9 @@ Chip8::~Chip8()
 
 void Chip8::run()
 {
+	initialSystemTimeStamp = std::chrono::steady_clock::now();
 	//main loop
+	io->waitForInputEvent();
 	while (running) {
 		//save timestamp for current clock cycle
 		systemTimeStamp = std::chrono::steady_clock::now();
@@ -99,8 +107,9 @@ void Chip8::run()
 		//update display
 		io->displayUpdate();
 
-		std::chrono::duration<double> cpuTime = std::chrono::steady_clock::now() - systemTimeStamp;
-		std::chrono::duration<double> sleepInterval = CHRONO_CLOCK_PERIOD_MICROSECONDS - cpuTime;
+		cpuTime = std::chrono::steady_clock::now() - systemTimeStamp;
+		sleepInterval = CHRONO_CLOCK_PERIOD_MICROSECONDS - cpuTime;
+		
 
 		//std::cout << std::chrono::duration_cast<std::chrono::microseconds>(sleepInterval).count() << " " << std::chrono::duration_cast<std::chrono::microseconds>(cpuTime).count() << std::endl;
 		std::this_thread::sleep_for(sleepInterval);
@@ -129,12 +138,13 @@ void Chip8::executeInstruction(uint16_t opcode)
 	uint8_t & Vf = _reg_v[0xf];
 
 #if DEBUG
-	logFile << std::endl << "pc: " << std::hex << (int) _reg_pc << " opcode: " <<  (int)opcode << std::endl;
+	logFile << std::endl << std::dec << "t: " << durationCount<std::chrono::milliseconds>(systemTimeStamp - initialSystemTimeStamp) << "ms " << "cpuTime: " << durationCount<std::chrono::microseconds>(cpuTime) << "us sleepInterval: " << durationCount<std::chrono::microseconds>(sleepInterval) << "us pc: " << std::hex << (int)_reg_pc << " opcode: " <<  (int)opcode << std::endl;
 	for (auto i = 0; i <= 0xF; ++i) {
 		logFile << "V[" << i << "]: " << std::hex << (int)_reg_v[i] << "  ";
 	}
 		logFile << std::endl << std::hex << "I: " << _reg_i << " dt: "  << (int)_reg_delay_timer << std::endl;
 #endif
+
 
 	auto incrementProgramCounter = [&]() { _reg_pc += 2; };
 
@@ -333,12 +343,14 @@ void Chip8::executeInstruction(uint16_t opcode)
 					for (int i = 0; i <= opcodeNibble2; ++i) {
 						_memory[_reg_i + i] = _reg_v[i];
 					}
+					//_reg_i += opcodeNibble2 + 1;
 					break;
 				// Fx65 - Read registers V0 through Vx from memory starting at location I. 
 				case 0x65:
 					for (int i = 0; i <= opcodeNibble2; ++i) {
 						_reg_v[i] = _memory[_reg_i + i];
 					}
+					//_reg_i += opcodeNibble2 + 1;
 					break;
 				default:
 					invalidInstruction(opcode);
