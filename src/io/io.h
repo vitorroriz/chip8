@@ -120,9 +120,10 @@ public:
 	bool displaySetPixel(int positionX, int positionY, bool value)
 	{
 		bool oldValue = displayGetPixel(positionX, positionY);
-		displayMemory[wrapY(positionY) * displayWidth + wrapX(positionX)] = value;
+		bool collision = oldValue ^ value;
+		displayMemory[wrapY(positionY) * displayWidth + wrapX(positionX)] = collision;
 
-		return !value && oldValue; //returns true if bit was erased
+		return collision;
 	}
 
 	bool displayGetPixel(int positionX, int positionY)
