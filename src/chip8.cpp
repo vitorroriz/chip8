@@ -60,9 +60,6 @@ Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg
 	}
 	
 	std::string content{ (std::istreambuf_iterator<char>{ifs}),(std::istreambuf_iterator<char>{}) };
-	for (int i = 0; i < content.size(); i ++) {
-		_memory[MEMORY_START_ADDR + i] = content[i];
-	}
 	std::memcpy(&_memory[MEMORY_START_ADDR], content.c_str(), content.size());
 	ifs.close();
 	
