@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <thread>
 
-#define DEBUG 1
+#define DEBUG 0
 
 const int PERIOD_60HZ_MICROSECONDS = (1000000 / static_cast<double>(60));
 const int CLOCK_FREQUENCY_HZ = 500;
@@ -30,7 +30,7 @@ Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg
 	std::memset(_reg_v, 0, sizeof _reg_v);
 	std::memset(_stack, 0, sizeof _stack);
 
-	uint8_t sprites[] = {
+	uint8_t fontSprites[] = {
 		0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
 		0x20, 0x60, 0x20, 0x20, 0x70, // 1
 		0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -49,29 +49,26 @@ Chip8::Chip8(std::string romPath) : _reg_pc(MEMORY_START_ADDR), _reg_sp(0), _reg
 		0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 	};
 
-	//load sprites into cpu memory
-	std::memcpy(&_memory[0], sprites, sizeof sprites);
+	//load font sprites into cpu memory
+	std::memcpy(&_memory[0], fontSprites, sizeof fontSprites);
 
-	//load test code into memory (I = 0, Draw 5 bytes)
-	/*
-	uint8_t code[] = {
-		0x0A, 0xA0, 0x05, 0xD0
-	};
-	std::memcpy(&_memory[MEMORY_START_ADDR], code, 4);
-	*/
 	//open rom file and load into memory
-	std::ifstream ifs(romPath);
-	std::string content((std::istreambuf_iterator<char>(ifs)),
-		(std::istreambuf_iterator<char>()));
-
-#if DEBUG
-	logFile.open("log.txt");
-#endif
-
+	std::ifstream ifs(romPath, std::ios::binary);
+	if (!ifs.is_open()) {
+		std::cout << "Could not read ROM file" << std::endl;
+		assert(false);
+	}
+	
+	std::string content{ (std::istreambuf_iterator<char>{ifs}),(std::istreambuf_iterator<char>{}) };
 	for (int i = 0; i < content.size(); i ++) {
 		_memory[MEMORY_START_ADDR + i] = content[i];
 	}
-
+	std::memcpy(&_memory[MEMORY_START_ADDR], content.c_str(), content.size());
+	ifs.close();
+	
+#if DEBUG
+	logFile.open("log.txt");
+#endif
 }
 
 Chip8::~Chip8()
