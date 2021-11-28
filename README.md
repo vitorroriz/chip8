@@ -1,6 +1,6 @@
 # chip8
 
-This is a C++ emulator for the chip-8 architecture. There are many classic games written/ported to chip-8 and the emulator should be able to load and those.
+This is a C++ emulator for the chip-8 architecture. There are many classic games written/ported to chip-8 and the emulator should be able to load and run those.
 
 Due to Chip-8's short instruction set and simple architecture, the platform is a perfect target for a first emulator project.
 
